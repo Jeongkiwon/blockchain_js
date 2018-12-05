@@ -1,3 +1,7 @@
+//해쉬 사용
+const sha256 = require('sha256');
+
+
 //블록체인 데이터 구조
 function Blockchain(){
     this.chain = [];
@@ -48,6 +52,28 @@ Blockchain.prototype.createNewTransaction = function(amount,sender,recipient){
     
     return this.getLastBlock()['index'] + 1
 }    
+
+//해쉬를 만드는 함수
+Blockchain.prototype.hashBlock = function(previousBlockHash,currentBlockData,nonce){
+    const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
+    const hash = sha256(dataAsString);
+    return hash
+}
+
+//pow 작업 함수 - 이전블록의 해쉬, 현재 블록 데이터와 nonce 값을 사용한다.
+Blockchain.prototype.proofOfWork = function(previousBlockHash,currentBlockData){
+
+    let nonce = 0;
+    let hash = this.hashBlock(previousBlockHash,currentBlockData,nonce);
+    while(hash.substring(0,4) != '0000'){
+    nonce++;
+    hash = this.hashBlock(previousBlockHash,currentBlockData,nonce)
+    }
+    return nonce;
+}
+    
+
+
 
 //블록체인 데이터 구조를 모듈화 해서 다른 페이지에서도 사용할 수 있게한다.
 //test.js에서 테스트를 해보자.
